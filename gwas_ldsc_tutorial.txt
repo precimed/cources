@@ -1,0 +1,77 @@
+Instructions for Day 4. LD-score regression.
+
+- Download summary statistics for Schizophrenia GWAS from Psychiatric Genomics Consortium 
+  1. Open browser and go to https://www.med.unc.edu/pgc/results-and-downloads
+  2. Search for SCZ2 in the first column. Select "Download full SNP results" link from the second column.
+  3. Read and accept Data Download Agreement. Click Submit. On the next page, click "Download SCZ full SNP data".
+  4. You should receive a file called ckqny.scz2snpres.gz . Save it in your favorite location (for exampel,  ~/gwas_course )
+
+- Download and install Anaconda Python distribution 
+  1. Open browser and go to https://www.anaconda.com/distribution/
+  2. Select your operating system (mac, windows or linux)
+  3. Click "Download" button under "Python 3.7 installer"
+  4. Install the downloaded package. This may require administrator rights on your machine.
+
+- Open terminal, and execute "python" command. Then, execute the following:
+
+# Load modules
+import pandas as pd
+import numpy as np
+from scipy import stats
+
+# Read summary statistics table from PGC schizophrenia GWAS.
+# If 'ckqny.scz2snpres.gz' is not in your current folder you may need to provid full path.
+df=pd.read_table('ckqny.scz2snpres.gz', delim_whitespace=True)
+
+# Display header of the table
+df.head()
+
+# Rename columns as follows: hg19chrc -> CHR, snpid -> SNP, etc.
+df.rename(columns={'hg19chrc':'CHR', 'snpid':'SNP', 'a1':'A1', 'a2':'A2', 'or':'OR', 'se':'SE', 'p':'PVALUE', 'bp':'BP', 'info':'INFO'}, inplace=True)
+
+# Drop 'ngt' column from the table
+df.drop(columns=['ngt'], inplace=True)
+
+# Create new columns 'N' and 'Z' according to specified formulas
+df['N'] = 35476+46839
+df['Z'] = -stats.norm.ppf(df['PVALUE'].values*0.5)*np.sign(np.log(df['OR'].values))
+
+# Simplify format in the 'CHR' column, and convert it from string to numeric representation
+df['CHR'] = pd.to_numeric(df['CHR'].str.replace('chr', ''), errors='coerce')
+
+# Drop rows of the table that correspond to non-numeric chromosomes
+df = df[~df['CHR'].isnull()].copy()
+df['CHR']=df['CHR'].astype(int)
+
+# Save the resulting table into file 'PGC_SCZ_2014.csv'
+df.to_csv('PGC_SCZ_2014.csv', index=False, sep='\t')
+
+- Open another terminal and compress the resulting file:
+
+zip -r PGC_SCZ_2014.zip PGC_SCZ_2014.csv
+
+- Optional exercise:
+
+  Download 'http://ldsc.broadinstitute.org/static/media/w_hm3.noMHC.snplist.zip' and put it in the same folder as 'ckqny.scz2snpres.gz'
+
+  Start 'python' and execute the following:
+
+ref=pd.read_table('w_hm3.noMHC.snplist.zip', delim_whitespace=True)
+df_ref = pd.merge(df, ref[['SNP']], on='SNP', how='inner')
+df_ref[['CHR', 'SNP', 'A1', 'A2', 'BP', 'INFO', 'PVALUE', 'N', 'Z']].to_csv('PGC_SCZ_2014_hm3.csv', index=False, sep='\t')
+
+- Open another terminal and compress the resulting file:
+
+zip -r PGC_SCZ_2014_hm3.zip PGC_SCZ_2014_hm3.csv
+
+- Now we can run LD score regression. 
+  Open browser and go to http://ldsc.broadinstitute.org/
+
+  Click "Get started with LD hub"
+  Click "Sign in with your google account"
+  Click "Go to test center"
+  Click "Continue"
+  Click "Choose file", and and select "PGC_SCZ_2014_hm3.zip" file for upload
+  Click "Submit"
+  Download QC information for the uploaded file
+  Download SNP heritability analysis results
