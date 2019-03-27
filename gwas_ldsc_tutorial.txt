@@ -43,12 +43,12 @@ df['CHR'] = pd.to_numeric(df['CHR'].str.replace('chr', ''), errors='coerce')
 df = df[~df['CHR'].isnull()].copy()
 df['CHR']=df['CHR'].astype(int)
 
-# Save the resulting table into file 'PGC_SCZ_2014.csv'
-df.to_csv('PGC_SCZ_2014.csv', index=False, sep='\t')
+# Save the resulting table into file 'PGC_SCZ_2014'
+df.to_csv('PGC_SCZ_2014', index=False, sep='\t')
 
 - Open another terminal and compress the resulting file:
 
-zip -r PGC_SCZ_2014.zip PGC_SCZ_2014.csv
+zip PGC_SCZ_2014.zip PGC_SCZ_2014
 
 - Optional exercise:
 
@@ -58,11 +58,11 @@ zip -r PGC_SCZ_2014.zip PGC_SCZ_2014.csv
 
 ref=pd.read_table('w_hm3.noMHC.snplist.zip', delim_whitespace=True)
 df_ref = pd.merge(df, ref[['SNP']], on='SNP', how='inner')
-df_ref[['CHR', 'SNP', 'A1', 'A2', 'BP', 'INFO', 'PVALUE', 'N', 'Z']].to_csv('PGC_SCZ_2014_hm3.csv', index=False, sep='\t')
+df_ref[['CHR', 'SNP', 'A1', 'A2', 'BP', 'INFO', 'PVALUE', 'N', 'Z']].to_csv('PGC_SCZ_2014_hm3', index=False, sep='\t')
 
 - Open another terminal and compress the resulting file:
 
-zip -r PGC_SCZ_2014_hm3.zip PGC_SCZ_2014_hm3.csv
+zip PGC_SCZ_2014_hm3.zip PGC_SCZ_2014_hm3
 
 - Now we can run LD score regression. 
   Open browser and go to http://ldsc.broadinstitute.org/
