@@ -44,7 +44,7 @@ df = df[~df['CHR'].isnull()].copy()
 df['CHR']=df['CHR'].astype(int)
 
 # Save the resulting table into file 'PGC_SCZ_2014'
-df.to_csv('PGC_SCZ_2014', index=False, sep='\t')
+df[['CHR', 'SNP', 'A1', 'A2', 'BP', 'INFO', 'PVALUE', 'N', 'Z']].to_csv('PGC_SCZ_2014', index=False, sep='\t')
 
 - Open another terminal and compress the resulting file:
 
